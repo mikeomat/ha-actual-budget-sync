@@ -31,4 +31,4 @@ jobs:
             --test \
             --aarch64 \
             --target . \
-            --docker-hub ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            --docker-hub ${{ steps.meta.outputs.tags }}
