@@ -22,4 +22,4 @@ jobs:
             --test \
             --aarch64 \
             --target . \
-            --docker-hub ghcr.io/mikeomat/ha-actual-budget-sync
+            --docker-hub "ghcr.io/mikeomat/ha-actual-budget-sync"
