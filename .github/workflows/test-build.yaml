@@ -30,4 +30,5 @@ jobs:
           args: |
             --test \
             --aarch64 \
+            --target ./ \
             --docker-hub "ghcr.io/mikeomat"
