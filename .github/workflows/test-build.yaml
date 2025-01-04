@@ -30,5 +30,4 @@ jobs:
           args: |
             --test \
             --aarch64 \
-            --target . \
-            --docker-hub ${{ steps.meta.outputs.tags }}
+            --target .
