@@ -51,8 +51,7 @@ export async function syncTransactions(fromBudget: BudgetConfig, toBudget: Budge
         importTransactions.push(mapToTransaction(currentTransaction, toBudget.accountId));
     }
     await helper.loadBudget(toBudget);
-    console.info(importTransactions);
-    //await api.importTransactions(toBudget.accountId, importTransactions);
+    await api.importTransactions(toBudget.accountId, importTransactions);
     await api.sync();
     console.info(`Finishd syncing transactions`);
 }
