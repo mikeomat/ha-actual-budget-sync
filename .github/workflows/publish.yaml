@@ -1,6 +1,10 @@
-name: "Test"
+name: "Publish"
 
 on: [push]
+workflows: [Build]
+  types: [completed]
+branches:
+  - main
 
 env:
   REGISTRY: ghcr.io
@@ -13,24 +17,17 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-        with:
-            path: dev
       - name: Login to Container registry
         uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - name: Test build
+      - name: Publish build
         uses: home-assistant/builder@master
         with:
           args: |
-            --test \
             --all \
-            --target dev \
-            --docker-hub "ghcr.io/mikeomat"
+            --target . \
+            --docker-hub-check \
+            --docker-hub "${{ env.REGISTRY }}/mikeomat"
