@@ -1,0 +1,24 @@
+name: "Build"
+
+on: [push]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  
+jobs:
+  build:
+    name: Test publish build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Test build
+        uses: home-assistant/builder@master
+        with:
+          args: |
+            --test \
+            --all \
+            --target . \
+            --docker-hub-check \
+            --docker-hub "${{ env.REGISTRY }}/mikeomat"
