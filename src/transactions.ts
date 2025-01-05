@@ -101,6 +101,10 @@ function isRelevantTransaction(transaction: TransactionEntity, syncConfig: SyncC
     if (toCategory == undefined && transaction.subtransactions && transaction.subtransactions.length > 0) {
         return transaction.subtransactions.some(subtransaction => isRelevantTransaction(subtransaction, syncConfig, categoryMap));
     }
+    else {
+        return false;
+    }
+    
     return true;
 }
 
