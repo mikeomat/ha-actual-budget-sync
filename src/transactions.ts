@@ -89,9 +89,19 @@ async function getCategoryMap(fromCategoryGroups: APICategoryGroupEntity[], toCa
 
 function isRelevantTransaction(transaction: TransactionEntity, syncConfig: SyncConfig, categoryMap: Map<string, CategoryMapEntry | undefined>): boolean {
     const toCategory = categoryMap.get(transaction.category ?? '');
-    return  transaction.amount != 0 &&
-        (!syncConfig.transactions.excludeImported || !transaction.imported_id) &&
-        (!syncConfig.categories.excludeGroups || (toCategory != undefined && !syncConfig.categories.excludeGroups.includes(toCategory.group_name ?? '')));
+    if (transaction.amount == 0) {
+        return false;
+    }
+    if (syncConfig.transactions.excludeImported && transaction.imported_id) {
+        return false;
+    }
+    if (toCategory != undefined && syncConfig.categories.excludeGroups && syncConfig.categories.excludeGroups.includes(toCategory.group_name ?? '')) {
+        return false;
+    }
+    if (toCategory == undefined && transaction.subtransactions && transaction.subtransactions.length > 0) {
+        return transaction.subtransactions.some(subtransaction => isRelevantTransaction(subtransaction, syncConfig, categoryMap));
+    }
+    return true;
 }
 
 type CategoryMapEntry = {

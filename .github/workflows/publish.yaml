@@ -1,10 +1,9 @@
 name: "Publish"
 
-on: [push]
-workflows: [Build]
-  types: [completed]
-branches:
-  - main
+on:
+  push:
+    branches:
+      - main
 
 env:
   REGISTRY: ghcr.io
@@ -14,6 +13,8 @@ jobs:
   build:
     name: Test build
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
