@@ -51,7 +51,8 @@ export async function syncTransactions(fromBudget: BudgetConfig, toBudget: Budge
         importTransactions.push(mapToTransaction(currentTransaction, toBudget.accountId));
     }
     await helper.loadBudget(toBudget);
-    await api.importTransactions(toBudget.accountId, importTransactions);
+    console.info(importTransactions);
+    //await api.importTransactions(toBudget.accountId, importTransactions);
     await api.sync();
     console.info(`Finishd syncing transactions`);
 }
@@ -89,9 +90,19 @@ async function getCategoryMap(fromCategoryGroups: APICategoryGroupEntity[], toCa
 
 function isRelevantTransaction(transaction: TransactionEntity, syncConfig: SyncConfig, categoryMap: Map<string, CategoryMapEntry | undefined>): boolean {
     const toCategory = categoryMap.get(transaction.category ?? '');
-    return  transaction.amount != 0 &&
-        (!syncConfig.transactions.excludeImported || !transaction.imported_id) &&
-        (!syncConfig.categories.excludeGroups || (toCategory != undefined && !syncConfig.categories.excludeGroups.includes(toCategory.group_name ?? '')));
+    if (transaction.amount == 0) {
+        return false;
+    }
+    if (syncConfig.transactions.excludeImported && transaction.imported_id) {
+        return false;
+    }
+    if (toCategory != undefined && syncConfig.categories.excludeGroups && syncConfig.categories.excludeGroups.includes(toCategory.group_name ?? '')) {
+        return false;
+    }
+    if (toCategory == undefined && transaction.subtransactions && transaction.subtransactions.length > 0) {
+        return transaction.subtransactions.some(subtransaction => isRelevantTransaction(subtransaction, syncConfig, categoryMap));
+    }
+    return true;
 }
 
 type CategoryMapEntry = {
