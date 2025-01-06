@@ -6,7 +6,7 @@ slug: "actual_budget_sync"
 init: false
 arch:
   - aarch64
-image: "ghcr.io/mikeomat/ha-actual-budget-sync-{arch}"
+image: "ghcr.io/mikeomat/ha-actual-budget-sync"
 map:
  - type: addon_config
    path: /config
