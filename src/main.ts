@@ -6,7 +6,7 @@ import { AppConfig } from './types';
 
 dotenv.config();
 
-if (process.env.DISABLE_CONSOLE_LOG) {
+if (process.env.DISABLE_CONSOLE_LOG === 'true') {
   console.log = function () { }
 }
 
@@ -17,8 +17,12 @@ start();
 
 async function start() {
   console.info(`Starting sync ${Date()}`);
-  await synchronize();
-  console.info('Finished sync');
+  try {
+    await synchronize();
+    console.info('Finished sync');
+  } catch (e) {
+    console.error(`Error during sync: ${e}`);
+  }
   console.info(`Next sync in ${config.scheduleSyncMs / 1000 / 60} minutes`);
   setTimeout(start, config.scheduleSyncMs);
 }
