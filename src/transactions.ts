@@ -6,8 +6,7 @@ import { TransactionEntity } from '@actual-app/api/@types/loot-core/types/models
 
 export async function syncTransactions(fromBudget: BudgetConfig, toBudget: BudgetConfig, syncConfig: SyncConfig) {
     console.info(`Started syncing transactions`);
-    await helper.loadBudget(fromBudget)
-    const fromTransactions = await api.getTransactions(fromBudget.accountId, undefined, undefined);
+    const fromTransactions = await getTransactions(fromBudget, syncConfig);
     const fromCategoryGroups = await api.getCategoryGroups();
     const fromPayees = await api.getPayees();
     const payeeMap = await getPayeeMap(fromPayees);
@@ -17,6 +16,10 @@ export async function syncTransactions(fromBudget: BudgetConfig, toBudget: Budge
 
     const categoryMap = await getCategoryMap(syncConfig, fromCategoryGroups, toCategoryGroups);
     const mapToTransaction = (transaction: TransactionEntity, accountId: string): TransactionEntity => {
+        let category = categoryMap.get(transaction.category ?? '');
+        if (syncConfig.transactions.includeTransfers == true && transaction.transfer_id && !category) {
+            category = categoryMap.get(helper.TRANSFER_CATEGORY.id);
+        }
         return {
             id: transaction.id,
             amount: transaction.amount,
@@ -24,27 +27,14 @@ export async function syncTransactions(fromBudget: BudgetConfig, toBudget: Budge
             account: accountId,
             date: transaction.date,
             payee_name: payeeMap.get(transaction.payee ?? '')?.name ?? null,
-            category: categoryMap.get(transaction.category ?? '')?.id ?? null,
+            category: category?.id ?? null,
             imported_id: transaction.id,
             cleared: transaction.cleared,
             subtransactions: transaction.subtransactions
-                ?.map(subtransaction => mapToSubtransaction(subtransaction, accountId))
+                ?.map(subtransaction => mapToTransaction(subtransaction, accountId))
                 ?.filter(transaction => isRelevantTransaction(transaction, syncConfig))
         } as TransactionEntity
     };
-
-    const mapToSubtransaction = (transaction: TransactionEntity, accountId: string): TransactionEntity => {
-        return {
-            id: transaction.id,
-            account: accountId,
-            date: transaction.date,
-            amount: transaction.amount,
-            notes: transaction.notes,
-            category: categoryMap.get(transaction.category ?? '')?.id ?? null,
-            imported_id: transaction.id,
-            cleared: transaction.cleared
-        } as TransactionEntity
-    }
 
     const filteredTransactions = fromTransactions
         .map(transaction => mapToTransaction(transaction, toBudget.accountId))
@@ -55,8 +45,16 @@ export async function syncTransactions(fromBudget: BudgetConfig, toBudget: Budge
     }
     await helper.loadBudget(toBudget);
     await api.importTransactions(toBudget.accountId, importTransactions);
-    await api.sync();
     console.info(`Finishd syncing transactions`);
+}
+
+async function getTransactions(budget: BudgetConfig, syncConfig: SyncConfig): Promise<TransactionEntity[]> {
+    await helper.loadBudget(budget)
+    const transactions = await api.getTransactions(budget.accountId, undefined, undefined);
+    if (syncConfig.transactions.excludeImported == true) {
+        return transactions.filter(transaction => transaction.imported_id == null);
+    }
+    return transactions;
 }
 
 async function getPayeeMap(fromPayees: APIPayeeEntity[]): Promise<Map<string, APIPayeeEntity>> {
@@ -69,6 +67,9 @@ async function getPayeeMap(fromPayees: APIPayeeEntity[]): Promise<Map<string, AP
 
 async function getCategoryMap(syncConfig: SyncConfig, fromCategoryGroups: APICategoryGroupEntity[], toCategoryGroups: APICategoryGroupEntity[]): Promise<Map<string, CategoryMapEntry | undefined>> {
     const categoriesMap = new Map<string, CategoryMapEntry | undefined>()
+    if (syncConfig.transactions.includeTransfers == true) {
+        fromCategoryGroups.push(helper.TRANSFER_CATEGORY_GROUP)
+    }
     for (const fromCategoryGroup of fromCategoryGroups) {
         const toCategoryGroup = toCategoryGroups.find(group => group.name === fromCategoryGroup.name);
 
@@ -98,9 +99,7 @@ function isRelevantTransaction(transaction: TransactionEntity, syncConfig: SyncC
     if (transaction.amount == 0) {
         return false;
     }
-    if (syncConfig.transactions.excludeImported && transaction.imported_id) {
-        return false;
-    }
+
     if (transaction.category == null) {
         if (transaction.subtransactions && transaction.subtransactions.length > 0) {
             return transaction.subtransactions.some(subtransaction => isRelevantTransaction(subtransaction, syncConfig));

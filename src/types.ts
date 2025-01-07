@@ -22,6 +22,7 @@ export type SyncConfig = {
     }
     transactions: {
         enable: boolean
+        includeTransfers: boolean
         excludeImported: boolean
     }
 }

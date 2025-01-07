@@ -15,10 +15,13 @@ export async function syncCategories(fromBudget : BudgetConfig, toBudget: Budget
     if (syncConfig.categories.excludeGroups) {
         filteredCategoryGroups = filteredCategoryGroups.filter(group => !syncConfig.categories.excludeGroups.includes(group.name))
     }
+    if(syncConfig.transactions.includeTransfers) {  
+        filteredCategoryGroups.push(helper.TRANSFER_CATEGORY_GROUP)
+    }
+
     for (const syncCategoryGroup of filteredCategoryGroups) {
         await createOrUpdateCategoryGroup(syncCategoryGroup, existingGroups, existingCategories)
     }
-    await api.sync();
     console.info(`Finished syncing categories`);
 }
 
