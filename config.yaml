@@ -1,7 +1,7 @@
 name: "Actual Budget Sync"
 description: "Sync categories and transactions between Budgets"
 startup: "application"
-version: "1.0.4"
+version: "1.0.5"
 slug: "actual_budget_sync"
 init: false
 arch:
