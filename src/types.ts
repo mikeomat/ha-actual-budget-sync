@@ -28,6 +28,7 @@ export type SyncConfig = {
 }
 
 export type BudgetConfig = {
+    budgetId: string;
     syncId: string;
     password: string | undefined;
     accountId: string;
