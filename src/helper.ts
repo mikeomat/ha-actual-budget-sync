@@ -19,7 +19,7 @@ export const TRANSFER_CATEGORY: APICategoryEntity = {
     id: TRANSFER_CATEGORY_ID,
     name: '[Import] Transfer',
     group_id: TRANSFER_CATEGORY_GROUP_ID
-} as CategoryEntity
+};
 
 export const TRANSFER_CATEGORY_GROUP: APICategoryGroupEntity = {
     id: TRANSFER_CATEGORY_GROUP_ID,
