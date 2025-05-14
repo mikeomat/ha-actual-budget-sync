@@ -1,10 +1,25 @@
 import * as api from '@actual-app/api';
 import { BudgetConfig } from './types';
-import { CategoryEntity, CategoryGroupEntity } from '@actual-app/api/@types/loot-core/types/models';
 import { APICategoryEntity, APICategoryGroupEntity } from '@actual-app/api/@types/loot-core/server/api-models';
 
 export async function loadBudget(budget: BudgetConfig) {
-    console.debug(`Loading budget ${budget.syncId.substring(0, 8)}`);
+
+    let localBudgets = await api.getBudgets();
+    let localBudget = localBudgets.find(b => b.id === budget.budgetId);
+
+    if (localBudget) {
+        console.debug(`Loading budget ${budget.syncId.substring(0, 8)}`);
+        await api.loadBudget(localBudget.id);
+        await api.sync();
+    } else {
+        console.debug(`Downloading budget ${budget.syncId.substring(0, 8)}`);
+        await downloadBudget(budget);
+    }
+
+    await api.shutdown();
+}
+
+export async function downloadBudget(budget: BudgetConfig) {
     if (budget.password) {
         await api.downloadBudget(budget.syncId, { password: budget.password });
     } else {
