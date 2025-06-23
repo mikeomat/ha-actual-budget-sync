@@ -11,7 +11,7 @@
     "dev": "ts-node -T src/main.ts"
   },
   "dependencies": {
-    "@actual-app/api": "^25.5.0",
+    "@actual-app/api": "^25.6.1",
     "dotenv": "^16.5.0"
   },
   "devDependencies": {
