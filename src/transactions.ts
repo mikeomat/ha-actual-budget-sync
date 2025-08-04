@@ -1,8 +1,8 @@
 import * as api from '@actual-app/api';
 import * as helper from './helper';
-import { APICategoryGroupEntity, APIPayeeEntity } from '@actual-app/api/@types/loot-core/server/api-models';
 import { BudgetConfig, SyncConfig } from './types';
-import { TransactionEntity } from '@actual-app/api/@types/loot-core/types/models';
+import { APIPayeeEntity, APICategoryGroupEntity } from '@actual-app/api/@types/loot-core/src/server/api-models';
+import { TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models';
 
 export async function syncTransactions(fromBudget: BudgetConfig, toBudget: BudgetConfig, syncConfig: SyncConfig) {
     console.info(`Started syncing transactions`);

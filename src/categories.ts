@@ -1,7 +1,7 @@
 import * as api from '@actual-app/api';
 import * as helper from './helper';
-import { APICategoryEntity, APICategoryGroupEntity } from '@actual-app/api/@types/loot-core/server/api-models';
 import { BudgetConfig, SyncConfig } from './types';
+import { APICategoryGroupEntity, APICategoryEntity } from '@actual-app/api/@types/loot-core/src/server/api-models';
 
 export async function syncCategories(fromBudget : BudgetConfig, toBudget: BudgetConfig, syncConfig: SyncConfig) {
     console.info(`Started syncing categories`);
