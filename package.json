@@ -12,14 +12,14 @@
   },
   "dependencies": {
     "@actual-app/api": "^25.8.0",
-    "dotenv": "^16.5.0"
+    "dotenv": "^17.2.1"
   },
   "devDependencies": {
-    "@types/node": "^18.19.112",
+    "@types/node": "^20.14.8",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "engines": {
-    "node": ">18.0.0"
+    "node": ">20.0.0"
   }
 }
