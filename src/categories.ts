@@ -8,15 +8,16 @@ export async function syncCategories(fromBudget : BudgetConfig, toBudget: Budget
     await helper.loadBudget(fromBudget);
     const syncCategoryGroups = await api.getCategoryGroups();
     await helper.loadBudget(toBudget);
-    const existingGroups = await api.getCategoryGroups()
-    const existingCategories = await api.getCategories()
+    const existingGroups = await api.getCategoryGroups() as APICategoryGroupEntity[]
+    const existingCategories = await api.getCategories() as APICategoryEntity[]
 
     let filteredCategoryGroups = syncCategoryGroups
     if (syncConfig.categories.excludeGroups) {
         filteredCategoryGroups = filteredCategoryGroups.filter(group => !syncConfig.categories.excludeGroups.includes(group.name))
     }
-    if(syncConfig.transactions.includeTransfers) {  
-        filteredCategoryGroups.push(helper.TRANSFER_CATEGORY_GROUP)
+
+    if(syncConfig.transactions.includeTransfers) {
+        filteredCategoryGroups = [...filteredCategoryGroups, helper.TRANSFER_CATEGORY_GROUP];
     }
 
     for (const syncCategoryGroup of filteredCategoryGroups) {
@@ -28,8 +29,8 @@ export async function syncCategories(fromBudget : BudgetConfig, toBudget: Budget
 async function createOrUpdateCategoryGroup(syncCategoryGroup: APICategoryGroupEntity, existingGroups: APICategoryGroupEntity[], existingCategories: APICategoryEntity[]) {
     const existing = existingGroups.find(group => group.name == syncCategoryGroup.name)
 
-    var groupId: string = ''
-    var group = {
+    let groupId: string = ''
+    const group = {
         name: syncCategoryGroup.name,
         hidden: syncCategoryGroup.hidden
     }
@@ -40,8 +41,10 @@ async function createOrUpdateCategoryGroup(syncCategoryGroup: APICategoryGroupEn
         groupId = await api.createCategoryGroup(syncCategoryGroup)
     }
 
-    for (const category of syncCategoryGroup.categories) {
-        await createOrUpdateCategory(groupId, category, existingCategories)
+    if (syncCategoryGroup.categories) {
+        for (const category of syncCategoryGroup.categories) {
+            await createOrUpdateCategory(groupId, category, existingCategories)
+        }
     }
 }
 
