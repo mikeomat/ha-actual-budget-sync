@@ -11,13 +11,13 @@
     "dev": "ts-node -T src/main.ts"
   },
   "dependencies": {
-    "@actual-app/api": "^25.11.0",
-    "dotenv": "^17.2.1"
+    "@actual-app/api": "^25.12.0",
+    "dotenv": "^17.2.3"
   },
   "devDependencies": {
-    "@types/node": "^20.14.8",
+    "@types/node": "^20.19.27",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">20.0.0"
