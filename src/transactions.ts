@@ -50,7 +50,7 @@ export async function syncTransactions(fromBudget: BudgetConfig, toBudget: Budge
 
 async function getTransactions(budget: BudgetConfig, syncConfig: SyncConfig): Promise<TransactionEntity[]> {
     await helper.loadBudget(budget)
-    const transactions = await api.getTransactions(budget.accountId, undefined, undefined);
+    const transactions = await api.getTransactions(budget.accountId, '', '');
     if (syncConfig.transactions.excludeImported == true) {
         return transactions.filter(transaction => transaction.imported_id == null);
     }
@@ -77,8 +77,9 @@ async function getCategoryMap(syncConfig: SyncConfig, fromCategoryGroups: APICat
             continue;
         }
 
-        for (const fromCategory of fromCategoryGroup.categories) {
-            const toCategory = toCategoryGroup?.categories.find(category => category.name === fromCategory.name);
+        if (fromCategoryGroup.categories) {
+            for (const fromCategory of fromCategoryGroup.categories) {
+                const toCategory = toCategoryGroup?.categories?.find(category => category.name === fromCategory.name);
 
             let entry = undefined;
             if (toCategory) {
@@ -89,7 +90,8 @@ async function getCategoryMap(syncConfig: SyncConfig, fromCategoryGroups: APICat
                     group_name: toCategoryGroup?.name
                 } as CategoryMapEntry;
             }
-            categoriesMap.set(fromCategory.id, entry);
+                categoriesMap.set(fromCategory.id, entry);
+            }
         }
     }
     return categoriesMap;
