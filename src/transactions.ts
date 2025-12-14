@@ -36,16 +36,13 @@ export async function syncTransactions(fromBudget: BudgetConfig, toBudget: Budge
         } as TransactionEntity
     };
 
-    const filteredTransactions = fromTransactions
+    const importTransactions = fromTransactions
         .map(transaction => mapToTransaction(transaction, toBudget.accountId))
         .filter(transaction => isRelevantTransaction(transaction, syncConfig));
-    let importTransactions: any[] = [];
-    for (const currentTransaction of filteredTransactions) {
-        importTransactions.push(currentTransaction);
-    }
+
     await helper.loadBudget(toBudget);
     await api.importTransactions(toBudget.accountId, importTransactions);
-    console.info(`Finishd syncing transactions`);
+    console.info(`Finished syncing transactions`);
 }
 
 async function getTransactions(budget: BudgetConfig, syncConfig: SyncConfig): Promise<TransactionEntity[]> {
