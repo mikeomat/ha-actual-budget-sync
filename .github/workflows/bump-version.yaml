@@ -1,0 +1,57 @@
+name: Bump Version
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'config.yaml'
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    if: |
+      github.event.head_commit.author.name != 'github-actions[bot]'
+    
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get current version
+        id: get-version
+        run: |
+          CURRENT_VERSION=$(grep -E '^version:' config.yaml | sed 's/version:[[:space:]]*//' | tr -d '"' | tr -d "'")
+          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Bump patch version
+        id: bump-version
+        run: |
+          CURRENT="${{ steps.get-version.outputs.current }}"
+          
+          # Parse version components
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          
+          # Increment patch version
+          NEW_PATCH=$((PATCH + 1))
+          NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+          
+          echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Bumping version from $CURRENT to $NEW_VERSION"
+
+      - name: Update config.yaml
+        run: |
+          sed -i "s/^version:.*/version: \"${{ steps.bump-version.outputs.new }}\"/" config.yaml
+
+      - name: Commit and push
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add config.yaml
+          git commit -m "chore: bump version to ${{ steps.bump-version.outputs.new }}"
+          git push
