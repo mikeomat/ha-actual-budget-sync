@@ -3,5 +3,16 @@
   "rangeStrategy": "bump",
   "extends": [
     "config:recommended"
+  ],
+   "packageRules": [
+    {
+      "description": "Automerge @actual-app/api updates",
+      "matchPackageNames": [
+        "@actual-app/api"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    }
   ]
 }

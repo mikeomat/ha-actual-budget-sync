@@ -7,6 +7,12 @@ on:
       - completed
     branches:
       - main
+    paths:
+      - config.yaml
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   REGISTRY: ghcr.io
