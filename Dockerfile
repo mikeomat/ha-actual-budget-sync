@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:19.0.0
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:20.0.1
 
 FROM ${BUILD_FROM} as nodebuild
 RUN apk add --update --no-cache nodejs npm python3 make g++
